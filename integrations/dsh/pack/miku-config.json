@@ -1,0 +1,150 @@
+{
+  "pets": [
+    {
+      "id": "miku",
+      "name": "Miku · 未来有你2021",
+      "size": 420,
+      "balanceEnabled": false,
+      "whisperEnabled": false,
+      "workStatusEnabled": false,
+      "fixedEnabled": true,
+      "display": "desktop",
+      "position": {
+        "marginX": 24,
+        "corner": "bottom-right",
+        "marginY": 110
+      }
+    }
+  ],
+  "animations": {
+    "idle": [
+      "待机眨眼"
+    ],
+    "turn": [
+      "左右张望"
+    ],
+    "drag": [
+      "悬空轻晃"
+    ],
+    "clicks": [
+      "开心回应",
+      "害羞一下",
+      "扭头抿嘴",
+      "嘘一下",
+      "给你点赞",
+      "比个耶",
+      "转转手腕",
+      "凑近看看",
+      "摊手耸肩",
+      "想一想",
+      "吓一小跳",
+      "眨眼比心",
+      "鞠躬谢谢",
+      "鼓鼓脸颊",
+      "侧耳听听",
+      "伞后探头"
+    ],
+    "moves": {
+      "default": {
+        "minDist": 48,
+        "maxDist": 120,
+        "margin": 20,
+        "leadSec": 0.5,
+        "tailSec": 1.34
+      },
+      "actions": [
+        {
+          "name": "散步一下"
+        }
+      ]
+    },
+    "categories": [
+      {
+        "id": "打招呼",
+        "weight": 4,
+        "noMirror": true,
+        "actions": [
+          "挥挥手",
+          "打个招呼",
+          "撑伞致意"
+        ]
+      },
+      {
+        "id": "小动作",
+        "weight": 2,
+        "noMirror": true,
+        "actions": [
+          "左右张望",
+          "整理帽子"
+        ]
+      },
+      {
+        "id": "开心时光",
+        "weight": 1,
+        "noMirror": true,
+        "actions": [
+          "轻快舞步",
+          "开心摇摆"
+        ]
+      },
+      {
+        "id": "动作查看",
+        "weight": 0,
+        "noMirror": true,
+        "actions": [
+          "提起晃腿",
+          "落地站稳"
+        ]
+      }
+    ],
+    "events": {
+      "balance": [
+        "待机眨眼"
+      ]
+    },
+    "sleep": [
+      {
+        "start": [
+          "打个盹"
+        ],
+        "loop": [
+          "睡梦中"
+        ],
+        "end": [
+          "慢慢醒来"
+        ]
+      }
+    ]
+  },
+  "animationWeights": {
+    "idle": 88,
+    "turn": 3,
+    "move": 3
+  },
+  "font": {
+    "family": "system",
+    "size": 18,
+    "followPet": true
+  },
+  "physics": {
+    "gravity": 1400,
+    "restitution": 0.55,
+    "groundFriction": 3,
+    "ceilingBounce": true,
+    "throwPower": 0.65,
+    "petCollision": false,
+    "hapticEnabled": false,
+    "tiltGravity": false,
+    "shakeThrow": false
+  },
+  "confineToScreen": true,
+  "sleepStartTexts": [
+    "稍微休息一下，待会儿见 ♪"
+  ],
+  "sleepEndTexts": [
+    "醒来啦，继续陪你 ♪"
+  ],
+  "sleepRefuseTexts": [
+    "让我再睡一会儿嘛…"
+  ]
+}

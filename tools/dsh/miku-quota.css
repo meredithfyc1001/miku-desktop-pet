@@ -1,0 +1,109 @@
+.pet-bubble.is-miku-quota {
+  max-width: min(calc(var(--f) * 19), 100%);
+  font-variant-numeric: tabular-nums;
+  color: #213c44;
+}
+.is-miku-quota .pet-bub-row { white-space: pre-line; display: block; }
+
+.miku-quota-prop {
+  position: absolute;
+  z-index: 1;
+  left: 59%;
+  top: 59%;
+  width: 6.3%;
+  aspect-ratio: 1.14;
+  pointer-events: none;
+  border-radius: 30% 30% 43% 43%;
+  background: radial-gradient(ellipse at 34% 26%, #a0c4bd, #4d8282 53%, #233e4a 95%);
+  box-shadow: inset 0 0 0 1px #315052, 0 2px 3px #19262d46;
+  transform-origin: 25% 20%;
+  animation: miku-purse-count 4.2s ease-in-out both;
+}
+.miku-quota-prop::before {
+  content: '';
+  position: absolute;
+  inset: -14% 4% 65%;
+  border-radius: 50%;
+  background: #223e41;
+  box-shadow: inset 0 0 0 1.5px #d0aa71;
+}
+.miku-quota-prop::after {
+  content: '';
+  position: absolute;
+  inset: 40% 37% 26%;
+  border: 1px solid #eed6a0;
+  border-radius: 50% 45% 45%;
+  transform: rotate(40deg);
+}
+.miku-quota-prop i {
+  position: absolute;
+  left: calc(17% + var(--coin) * 16%);
+  top: -10%;
+  width: 24%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 28%, #ffe7a0, #d59639 76%);
+  box-shadow: inset 0 0 0 1px #a56936;
+  animation: miku-purse-coin .56s ease-in-out calc(1s + var(--coin) * .4s) both;
+}
+.miku-quota-prop[data-tier='full'] {
+  top: 52%;
+  left: 59%;
+  width: 8.6%;
+  aspect-ratio: .94;
+  border-radius: 48% 49% 38% 38%;
+  background: radial-gradient(ellipse at 34% 31%, #f9deb0, #d2a268 48%, #8f5f3c 94%);
+  box-shadow: inset 0 0 0 1px #7c593a, 0 2px 3px #19262d46;
+  animation: miku-purse-lift 5.9s ease-in-out both;
+}
+.miku-quota-prop[data-tier='full']::before {
+  inset: -12% 25% 82%;
+  background: linear-gradient(95deg, #b28150, #f3d7a4 53%, #a77447);
+  box-shadow: 0 2px #326466;
+  border-radius: 30%;
+}
+.miku-quota-prop[data-tier='low'] {
+  width: 5.7%;
+  background: radial-gradient(ellipse at 34% 26%, #c9ad8a, #926b53 53%, #563f39 95%);
+  box-shadow: inset 0 0 0 1px #63493c, 0 2px 3px #19262d46;
+}
+.miku-quota-prop[data-tier='empty'] {
+  width: 5.2%;
+  left: 59%;
+  top: 52%;
+  aspect-ratio: .8;
+  border-radius: 18% 25% 40% 28%;
+  background: linear-gradient(105deg, #9e7458, #c9ad8a 50%, #8a624b 89%);
+  box-shadow: inset 0 0 0 1px #6f5340, 0 2px 3px #19262d46;
+  animation: miku-purse-empty 2.45s ease-in-out both;
+}
+@keyframes miku-purse-lift {
+  0%, 100% { opacity: 0; transform: translate(-20%, 56%) scale(.68) rotate(-9deg); }
+  21% { opacity: 1; transform: translate(-8%, -15%) rotate(-14deg); }
+  46% { transform: translate(5%, -25%) rotate(12deg); }
+  70% { opacity: 1; transform: translate(3%, -20%) rotate(-7deg); }
+  88% { opacity: .5; }
+}
+@keyframes miku-purse-count {
+  0%, 100% { opacity: 0; transform: translate(7%, 40%) scale(.66) rotate(-10deg); }
+  20% { opacity: 1; transform: translate(-20%, 0) scale(1) rotate(-7deg); }
+  52% { transform: translate(-18%, -4%) rotate(6deg); }
+  78% { opacity: 1; transform: translate(-13%, 5%) rotate(-5deg); }
+}
+@keyframes miku-purse-coin {
+  0%, 100% { transform: translateY(18%); }
+  45% { transform: translateY(-94%) rotate(-18deg); filter: brightness(1.25); }
+}
+@keyframes miku-purse-empty {
+  0%, 100% { opacity: 0; transform: translateY(28%) scale(.73); }
+  24% { opacity: 1; transform: translate(-6%, -5%) rotate(146deg); }
+  35%, 55% { transform: translate(11%, -15%) rotate(180deg); }
+  45%, 65% { transform: translate(-3%, -5%) rotate(150deg); }
+  76% { opacity: 1; transform: translate(4%, 1%) rotate(164deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .miku-quota-prop, .miku-quota-prop[data-tier] { animation-name: miku-purse-fade; }
+  .miku-quota-prop[data-tier='empty'] { transform: rotate(165deg); }
+  .miku-quota-prop i { animation: none; }
+}
+@keyframes miku-purse-fade { 0%, 100% { opacity: 0; } 18%, 75% { opacity: 1; } }

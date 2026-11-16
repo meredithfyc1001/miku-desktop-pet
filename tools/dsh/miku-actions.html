@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' file:; media-src file:">
+  <title>Miku · 动作图鉴</title>
+  <link rel="stylesheet" href="./miku-actions.css">
+  <script defer src="./miku-actions.js"></script>
+</head>
+<body>
+  <main>
+    <header><h1>动作图鉴</h1><span id="total"></span></header>
+    <div class="workspace">
+      <section class="collection" aria-label="动作列表">
+        <div class="filters">
+          <input id="search" type="search" aria-label="搜索动作" placeholder="搜索动作">
+          <select id="category" aria-label="动作分类"><option value="">全部分类</option></select>
+          <button type="button" id="only-favorites" aria-pressed="false">☆ 只看收藏</button>
+        </div>
+        <p id="results" role="status"></p>
+        <div id="cards"></div>
+      </section>
+      <aside aria-label="动作预览" class="preview">
+        <video id="video" muted playsinline preload="metadata" aria-label="动作视频预览"></video>
+        <div class="preview-copy">
+          <span id="meta"></span>
+          <h2 id="title">选择一个动作</h2>
+          <div class="controls">
+            <button type="button" id="preview-play" disabled>播放预览</button>
+            <button type="button" id="play" disabled>在桌面播放</button>
+            <button type="button" id="favorite" aria-pressed="false" disabled>☆ 收藏</button>
+          </div>
+          <p id="status" role="status"></p>
+        </div>
+        <p class="shortcut">双击 Miku 随机播放收藏里的动作。</p>
+      </aside>
+    </div>
+  </main>
+  <template id="card">
+    <button type="button" class="card" aria-pressed="false">
+      <img alt="" loading="lazy"><span class="card-label"><span class="name"></span><span class="star" aria-hidden="true"></span></span>
+    </button>
+  </template>
+</body>
+</html>

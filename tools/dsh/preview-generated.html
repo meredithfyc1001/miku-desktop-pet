@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><title>Miku · 视频候选预览</title>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent}video{width:100%;height:100%;object-fit:contain}#error{display:none;position:absolute;left:20px;top:20px;background:white;color:#b00020;padding:8px}</style>
+</head><body><video id="video" autoplay loop muted playsinline></video><div id="error">视频加载失败</div>
+<script>
+const video=document.querySelector('#video'),errorBox=document.querySelector('#error');
+video.addEventListener('error',()=>{errorBox.style.display='block';});
+video.addEventListener('playing',()=>{errorBox.style.display='none';});
+video.src=new URLSearchParams(location.search).get('video');
+video.play().catch(error=>{if(error.name!=='AbortError')errorBox.style.display='block';});
+</script>
+</body></html>

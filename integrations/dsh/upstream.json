@@ -1,0 +1,6 @@
+{
+  "repository": "https://github.com/PC2005-cloud/dsh-pet",
+  "commit": "89fd99581318bec97ae3f7c7ed007dc519a34502",
+  "adapter": "tools/dsh/build-trial.mjs",
+  "assetOrigin": "Reviewed Miku videos; no upstream character videos included."
+}

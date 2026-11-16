@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; media-src 'self';">
+  <title>Miku · 桌宠设置</title>
+  <link rel="stylesheet" href="./miku-settings.css">
+  <script defer src="./miku-settings.js"></script>
+</head>
+<body>
+  <aside>
+    <div class="identity"><span class="mark" aria-hidden="true">♪</span><div><strong>Miku</strong><small>未来有你 2021</small></div></div>
+    <nav aria-label="设置分类">
+      <button type="button" data-page="desktop" aria-current="page">桌面与外观</button>
+      <button type="button" data-page="voice">气泡与碎碎念</button>
+      <button type="button" data-page="motion">动作与手感</button>
+    </nav>
+    <div class="art"><video muted loop playsinline autoplay poster="./miku-settings-art.png" src="./miku-settings-idle.webm" aria-label="Miku 待机预览"></video></div>
+  </aside>
+  <main>
+    <header><h1>桌宠设置</h1></header>
+    <form id="settings">
+      <fieldset id="fields" disabled>
+        <section data-section="desktop">
+          <h2>桌面与外观</h2>
+          <div class="card grid">
+            <label>昵称<input name="name" maxlength="40" required></label>
+            <label>桌宠大小 <output for="size" id="sizeValue"></output><input type="range" id="size" name="size" min="180" max="720" step=".01"></label>
+            <label class="toggle"><span>始终置顶<small>在其他窗口上方显示</small></span><input type="checkbox" name="topmost"></label>
+            <label class="toggle"><span>允许漫游<small>闲下来时自己张望、散步</small></span><input type="checkbox" name="wander"></label>
+          </div>
+          <div class="card">
+            <h3>初始位置</h3>
+            <div class="grid three">
+              <label>屏幕角落<select name="corner"><option value="top-left">左上角</option><option value="top-right">右上角</option><option value="bottom-left">左下角</option><option value="bottom-right">右下角</option></select></label>
+              <label>水平偏移（px）<input type="number" name="marginX" min="0" max="10000" step="any" required></label>
+              <label>垂直偏移（px）<input type="number" name="marginY" min="0" max="10000" step="any" required></label>
+            </div>
+          </div>
+        </section>
+        <section data-section="voice" hidden>
+          <h2>气泡与碎碎念</h2>
+          <div class="card">
+            <div id="bubble" class="sample">今天也一起加油吧 ♪</div>
+            <div class="grid">
+              <label>气泡字体<select name="family"><option value="candy">圆体</option><option value="system">系统默认</option><option value="yahei">微软雅黑</option><option value="youyuan">幼圆</option><option value="kaiti">楷体</option><option value="simsun">宋体</option><option value="comic">Comic Sans</option></select></label>
+              <label>气泡字号（px）<input type="number" name="fontSize" min="12" max="34" step="any" required></label>
+              <label class="toggle"><span>字号随桌宠缩放</span><input type="checkbox" name="followPet"></label>
+              <label>自动碎碎念<select name="whisper"><option value="0">关闭</option><option value="5">每 5 分钟</option><option value="15">每 15 分钟</option><option value="30">每 30 分钟</option></select></label>
+            </div>
+          </div>
+          <div class="card model"><div><h3>碎碎念模型</h3><small>接口、模型和连接测试</small></div><button type="button" id="model">打开模型设置 ↗</button></div>
+        </section>
+        <section data-section="motion" hidden>
+          <h2>动作与手感</h2>
+          <div class="card">
+            <label class="toggle"><span>Codex 状态联动<small>运行时翻翻书，正常完成时比个耶</small></span><input type="checkbox" name="codexStatus"></label>
+          </div>
+          <div class="card">
+            <h3>自动动作频率</h3>
+            <div class="grid three">
+              <label>待机（%）<input type="number" name="idle" min="0" max="100" step="any" required></label>
+              <label>张望（%）<input type="number" name="turn" min="0" max="100" step="any" required></label>
+              <label>散步（%）<input type="number" name="move" min="0" max="100" step="any" required></label>
+            </div>
+            <p class="hint">随机动作 <output id="randomWeight"></output>。开启「允许漫游」后才会自动张望或散步。</p>
+          </div>
+          <div class="card">
+            <h3>拖拽与抛掷</h3>
+            <div class="grid">
+              <label>重力<input type="number" name="gravity" min="400" max="3000" step="any" required></label>
+              <label>弹性<input type="number" name="restitution" min="0" max=".95" step="any" required></label>
+              <label>地面摩擦<input type="number" name="groundFriction" min=".2" max="10" step="any" required></label>
+              <label>抛掷力度<input type="number" name="throwPower" min=".15" max="1.5" step="any" required></label>
+              <label class="toggle"><span>顶部反弹</span><input type="checkbox" name="ceilingBounce"></label>
+              <label class="toggle"><span>锁定在当前屏幕</span><input type="checkbox" name="confine"></label>
+              <label class="toggle"><span>点击音效</span><input type="checkbox" name="clickSound"></label>
+            </div>
+          </div>
+        </section>
+      </fieldset>
+      <footer><span id="status" role="status" aria-live="polite">正在读取设置…</span><button id="save" type="submit" disabled>保存设置</button></footer>
+    </form>
+  </main>
+</body>
+</html>
