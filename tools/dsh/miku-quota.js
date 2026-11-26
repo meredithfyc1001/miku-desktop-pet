@@ -64,11 +64,13 @@ Object.assign(PetSprite.prototype, {
 
   playMikuQuotaReaction(tier) {
     this.clearMikuQuotaProp();
-    const videoAction = MIKU_QUOTA_VIDEOS[tier];
+    const symphony = this.pet?.mikuAppearance === 'symphony';
+    const videoAction = symphony ? this.pet.mikuQuotaActions?.[tier] : MIKU_QUOTA_VIDEOS[tier];
     if (videoAction) {
       this.playOnce(videoAction);
       return;
     }
+    if (symphony) return;
     const { action, coins } = MIKU_QUOTA_REACTIONS[tier];
     const prop = document.createElement('div');
     prop.className = 'miku-quota-prop';

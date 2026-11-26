@@ -16,6 +16,14 @@ const MIKU_WHISPER_LINES = [
   { text: '我没走远，就在这里。' },
   { text: '好像听到雨声了，我看看。', action: '左右张望' },
 ];
+const SYMPHONY_WHISPER_LINES = [
+  { text: '准备好了？我给你打个拍子 ♪', action: '挥手问好' },
+  { text: '乐谱翻到这里，刚好可以歇一小会儿。', action: '专心读谱' },
+  { text: '发夹有点歪，等我摆正一下。', action: '整理金发夹' },
+  { text: '这一段先轻轻地弹，下一段再热闹一点。' },
+  { text: '八音盒还留着最后一个音，听见了吗？' },
+  { text: '今天的谢幕礼，先送给你。', action: '提裙致意' },
+];
 
 Object.assign(PetSprite.prototype, {
   initMikuWhisper() {
@@ -81,9 +89,11 @@ Object.assign(PetSprite.prototype, {
     state.pending = request;
     const timer = window.setTimeout(() => request.abort(), 8000);
     let text = '';
+    const symphony = this.pet.mikuAppearance === 'symphony';
     try {
       const delivery = automatic ? 'miku-auto' : 'miku';
-      const response = await fetch(`${BASE}/whisper?pet=${encodeURIComponent(this.pet.id)}&surface=desktop&delivery=${delivery}`, {
+      const appearance = symphony ? '&appearance=symphony' : '';
+      const response = await fetch(`${BASE}/whisper?pet=${encodeURIComponent(this.pet.id)}&surface=desktop&delivery=${delivery}${appearance}`, {
         method: 'POST', signal: request.signal,
       });
       if (response.ok) {
@@ -98,12 +108,13 @@ Object.assign(PetSprite.prototype, {
     if (this.mikuWhisper !== state || !this.canMikuWhisper(automatic)) return false;
     let action;
     if (!text) {
-      const line = S.pick(MIKU_WHISPER_LINES, state.lastLine);
+      const line = S.pick(symphony ? SYMPHONY_WHISPER_LINES : MIKU_WHISPER_LINES, state.lastLine);
       state.lastLine = line;
       ({ text, action } = line);
     }
     this.showWhisper(text, undefined, undefined, 6500, false);
-    if (action && !this.pending && this.animations.idle.includes(this.anim)) this.playOnce(action);
+    if (action && !this.pending && this.animations.idle.includes(this.anim) &&
+        (!symphony || this.pet.mikuActionNames.has(action))) this.playOnce(action);
     return true;
   },
 });

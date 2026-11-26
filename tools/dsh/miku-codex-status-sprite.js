@@ -6,7 +6,8 @@ const MIKU_CODEX_ACTIONS = {
 };
 
 PetSprite.prototype.onMikuCodexStatus = function (event) {
-  const action = Object.hasOwn(MIKU_CODEX_ACTIONS, event.kind) && MIKU_CODEX_ACTIONS[event.kind];
+  const actions = this.pet?.mikuCodexActions ?? MIKU_CODEX_ACTIONS;
+  const action = Object.hasOwn(actions, event.kind) && actions[event.kind];
   if (!action ||
       (event.expires && Date.now() >= event.expires) ||
       this.menuOpen || this.mikuQuotaPending || this.whisperOn || this.pending ||

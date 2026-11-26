@@ -1,0 +1,17 @@
+# Local pet state, animation production files, and generated previews
+/data-dsh/
+/datafilm/
+/.local-work-diagnostics/
+/artifactsfilm/
+/assets/video-production/
+
+# Generated runtime and dependencies
+/electron/
+/integrations/dsh/runtime/*
+!/integrations/dsh/runtime/LICENSE.dsh-pet
+/tools/upstream/
+/tools/media/node_modules/
+/MikuFilm.exe
+/MikuFilm.exe.config
+/Miku-*-win-x64.zip
+*.pdb

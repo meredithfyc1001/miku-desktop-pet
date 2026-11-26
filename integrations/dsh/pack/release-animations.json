@@ -1,0 +1,768 @@
+{
+  "version": "0.2.0",
+  "width": 640,
+  "height": 360,
+  "fps": 24,
+  "appearances": {
+    "classic": [
+      {
+        "name": "待机眨眼",
+        "category": "日常",
+        "frames": 186,
+        "sha256": "da596068f31797a8bcda9f412d9b5ceb94cb5f626ac66c04830e50d505b6d4fb"
+      },
+      {
+        "name": "开心回应",
+        "category": "日常",
+        "frames": 96,
+        "sha256": "e1c9cc973c7f01f1f2adce60af68531e1a9ef1b643ec2e6cdb015fd43ceac7d1"
+      },
+      {
+        "name": "害羞一下",
+        "category": "日常",
+        "frames": 96,
+        "sha256": "f07020d311f77def1fadac51cb7996188bf665bb4ae2da667c5e1cda3422e103"
+      },
+      {
+        "name": "扭头抿嘴",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "517354da2eb58770ae65988ce1a1277429cdb47244b840e8a9500d1b77baa0fd"
+      },
+      {
+        "name": "嘘一下",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "93fa2b7d06b8ef64f9f824843a1f05f959340a29bd0c372f2d4f0faed2ff9237"
+      },
+      {
+        "name": "给你点赞",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "87b6f8fbe2f432acecb192875bc19f962b9ac33a9fe0ac22da31538a4fcf69ea"
+      },
+      {
+        "name": "比个耶",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "3cb1b4e88583a39086b42313d94778d741ccb935c8b6bb2a649d7ea873b83fcf"
+      },
+      {
+        "name": "转转手腕",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "73ae9a4b35d823c5c1a90dfc173fe83505fb3c31798c65d9a39c2763c4e5fc04"
+      },
+      {
+        "name": "凑近看看",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "6e3c9f44cebdf276ff02324fd352cd8304e792fa488aedefd8abd9c07b201f72"
+      },
+      {
+        "name": "摊手耸肩",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "b25b075119d6870182973080dc73dd55a5427253e8f9957918b149a831fa92d9"
+      },
+      {
+        "name": "想一想",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "2d42ee129810ea1b95937be08093b57ef7263b93743519fa9c4b14c021b2f4ca"
+      },
+      {
+        "name": "吓一小跳",
+        "category": "日常",
+        "frames": 72,
+        "sha256": "5810540da91e53bef646fbf7a828076ec949fc5063fbf187f34548e5eebc5b0a"
+      },
+      {
+        "name": "眨眼比心",
+        "category": "日常",
+        "frames": 72,
+        "sha256": "70211d2c2ee44d3cd9f0e81f3eb04cf9b2e9357d182be2c2c1b21bc599707504"
+      },
+      {
+        "name": "鞠躬谢谢",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "071b813aad4456c139762b8f8ec5d4d44332efeffff597aae0f01a4a77212272"
+      },
+      {
+        "name": "鼓鼓脸颊",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "afa4b79e696b76f07a6fe3118a5724ad0bfb2ca045ab3168fd78861750419e1f"
+      },
+      {
+        "name": "侧耳听听",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "aed178616b87ed4c3c264a312e468b673daf60bef8cb8ed15a7a317054e58cc2"
+      },
+      {
+        "name": "伞后探头",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "82a20cc90855a60af3fea211537291328eaeba89d8707d8be9f90f2ce7f95a1b"
+      },
+      {
+        "name": "左右张望",
+        "category": "日常",
+        "frames": 96,
+        "sha256": "bd07765d843db23e41a26a2798c38748998163f16a4a8928888aebf26231e894"
+      },
+      {
+        "name": "整理帽子",
+        "category": "日常",
+        "frames": 96,
+        "sha256": "244b75ca3d21b45720cc53f705c500540ced3d80565d6e75263970dd395b1f5b"
+      },
+      {
+        "name": "挥挥手",
+        "category": "打招呼",
+        "frames": 174,
+        "sha256": "04ffaa8d31e33298cff5e07eae9338e0d4bd16c7a51e8bbc526c9639cc7358af"
+      },
+      {
+        "name": "打个招呼",
+        "category": "打招呼",
+        "frames": 135,
+        "sha256": "d9f0d51291590d2982e11d6537c114fb7918a62e10544217ce487d70bd891be4"
+      },
+      {
+        "name": "撑伞致意",
+        "category": "打招呼",
+        "frames": 72,
+        "sha256": "81194741d77acda4e99f9f6e9a0bf5ac68e68cc90f8ad6924befecb001a64cd1"
+      },
+      {
+        "name": "轻快舞步",
+        "category": "开心时光",
+        "frames": 96,
+        "sha256": "cf808f19763659b09d21c5d630bba30a2c3279e9a7425b676b20723663ab5cdf"
+      },
+      {
+        "name": "开心摇摆",
+        "category": "开心时光",
+        "frames": 96,
+        "sha256": "f4f5aa19a0e22ccc2c496b99e1fc8c24a5a1ec55b08607dd0b6f14753fc3b23b"
+      },
+      {
+        "name": "摇扇纳凉",
+        "category": "生活趣味",
+        "frames": 96,
+        "sha256": "a9d05732301d13bac4a4be1bb72ffdb07bdefdbc15ad153ab07d17f42d079691"
+      },
+      {
+        "name": "吃糖葫芦",
+        "category": "生活趣味",
+        "frames": 96,
+        "sha256": "1229837ec2f09e33e70a28e84d0d0f9c3b1c657a6a366620d7570f314ef0ad3c"
+      },
+      {
+        "name": "凭空生花",
+        "category": "生活趣味",
+        "frames": 96,
+        "sha256": "f19979cb8c7d2d436b101e75cfe106594f8003fe9f3ca6f194ff04bb087e589d"
+      },
+      {
+        "name": "悠闲哼歌",
+        "category": "生活趣味",
+        "frames": 96,
+        "sha256": "e29f959274d48088983b7d05f3fdb9065cacf89f0f8aa40df24e693c6641ee84"
+      },
+      {
+        "name": "玩魔方",
+        "category": "生活趣味",
+        "frames": 96,
+        "sha256": "3fafd7d2f04c6b9db6121621dc6a7f2bf2d801efb9ff99911eab8f8ddafbd41f"
+      },
+      {
+        "name": "照镜子",
+        "category": "生活趣味",
+        "frames": 96,
+        "sha256": "19afba3006f8f471504ed1d1b4f5d9a9bff3bc49ca9213f4b55ceee675f749fe"
+      },
+      {
+        "name": "伸个懒腰",
+        "category": "生活趣味",
+        "frames": 96,
+        "sha256": "b3e8ffc1204fca88d4b327f943eec3c7c471b1b092033d51677ce85b428390aa"
+      },
+      {
+        "name": "打个哈欠",
+        "category": "生活趣味",
+        "frames": 96,
+        "sha256": "ae33b4cfeac523cd5e9ade784987fd51ddd2537f1fa4a2179c74df8a2b7c2548"
+      },
+      {
+        "name": "吹气球",
+        "category": "生活趣味",
+        "frames": 96,
+        "sha256": "cc92bf8edbd85f24dfb2d9255b5c5d30d184e37f39dee1c65167f1265439978b"
+      },
+      {
+        "name": "摇铃铛",
+        "category": "生活趣味",
+        "frames": 96,
+        "sha256": "0fa3b1e56f789977e21a82a25fba6fa924ea6ee47ebdfd1bfc4058385959b520"
+      },
+      {
+        "name": "喝口茶",
+        "category": "生活趣味",
+        "frames": 120,
+        "sha256": "ea1acf1a3fdfe8858e6a6756669f46760c3e211106a730b40c3dd2f80413a723"
+      },
+      {
+        "name": "翻翻书",
+        "category": "生活趣味",
+        "frames": 120,
+        "sha256": "2dc3f2f71b887defef458eac04b034f81bd133cbe608df2aec3c11add272269d"
+      },
+      {
+        "name": "吃个饭团",
+        "category": "生活趣味",
+        "frames": 120,
+        "sha256": "353a23556391206489b4a65cd8c79577e667139dd657ada4f54a9e34eadd93a2"
+      },
+      {
+        "name": "唱一小段",
+        "category": "生活趣味",
+        "frames": 120,
+        "sha256": "13a46c584f9d24bef1e4f56bb9e40195999be50ec82bd41731f7d31d06aa5b06"
+      },
+      {
+        "name": "举放大镜",
+        "category": "生活趣味",
+        "frames": 120,
+        "sha256": "75941668600e165c1c7206b2e3246172133a4e45418bf9b7a9c183f7ebe2aa17"
+      },
+      {
+        "name": "吃小饼干",
+        "category": "生活趣味",
+        "frames": 120,
+        "sha256": "8d74cb1c88f1dcced0a6c1403b81e2749daefec393fc5abe62bf0bbddb544cc2"
+      },
+      {
+        "name": "摇沙锤",
+        "category": "生活趣味",
+        "frames": 120,
+        "sha256": "33c66fd2de4a919c8b83d66c9f6fd5aabad1f0d74cfb386d0bf1f4950a353ac0"
+      },
+      {
+        "name": "看看纸鹤",
+        "category": "生活趣味",
+        "frames": 120,
+        "sha256": "b09a04e0157b4041c06480b95626620a20a17011b25d0da3de32a567001e5665"
+      },
+      {
+        "name": "看看怀表",
+        "category": "生活趣味",
+        "frames": 120,
+        "sha256": "5449a29a55d4664a48ab3985f16a9983947e6b8bdbd88861db46bbc7c6b14751"
+      },
+      {
+        "name": "点亮小灯",
+        "category": "生活趣味",
+        "frames": 120,
+        "sha256": "29c4760bea9f775b7ea31d3875eb7df7fa3381464c8b01522d4e3615aba96aac"
+      },
+      {
+        "name": "看看地图",
+        "category": "生活趣味",
+        "frames": 120,
+        "sha256": "7279be215f355b241da73641ec0d78fd643ec51d08d0f4c92cc1ac28b7fcfc73"
+      },
+      {
+        "name": "摇摇风铃",
+        "category": "生活趣味",
+        "frames": 120,
+        "sha256": "29a98e035bca2bf272b06277df6b73bbb986b99e3555886307df7fa744983ac0"
+      },
+      {
+        "name": "展示花印卡",
+        "category": "生活趣味",
+        "frames": 120,
+        "sha256": "f891a91b15b482e4d26e10ca1ec575b15b88d9ce8899fe75c3e835603f52c9bf"
+      },
+      {
+        "name": "理理裙摆",
+        "category": "生活趣味",
+        "frames": 120,
+        "sha256": "5eaac0af05eb19ed0563d559dd8bd7dcdc087fbb106641d702407d2bf3248436"
+      },
+      {
+        "name": "看看袖珍本",
+        "category": "生活趣味",
+        "frames": 120,
+        "sha256": "47e4f2d7b8b813759a298ed9440d0e2aeb5b36c916c87e9916c1103a4192ca43"
+      },
+      {
+        "name": "打开音乐盒",
+        "category": "生活趣味",
+        "frames": 120,
+        "sha256": "9acc799faa0d53d7381651a0f5a6c41c137638202c6005eda6ae365e50d58916"
+      },
+      {
+        "name": "闻茶香",
+        "category": "生活趣味",
+        "frames": 120,
+        "sha256": "2786e8005e4a7069a8be6196e1d1b6b2746653b79fa0235f3a6d929a72db57a7"
+      },
+      {
+        "name": "看丝带",
+        "category": "生活趣味",
+        "frames": 120,
+        "sha256": "3e4070e8b21025eb3435e6991ba1c5da1658dee1f9a3b5dfdb9696617d731b25"
+      },
+      {
+        "name": "举起钱袋",
+        "category": "额度动作",
+        "frames": 120,
+        "sha256": "6cb72383e53122ac45493f70f9c8a8d230ccaadc76b2457e001c29d91f067c22"
+      },
+      {
+        "name": "低头数零钱",
+        "category": "额度动作",
+        "frames": 120,
+        "sha256": "9a52625cb0ee915da24808f6f35a59f5985ac69400026873b8750f4b6fb810d8"
+      },
+      {
+        "name": "数最后两枚",
+        "category": "额度动作",
+        "frames": 120,
+        "sha256": "5ac9f904d9b673be46ba617f3d43a2bad83e9a87772464bb18e7cf022c6fa25b"
+      },
+      {
+        "name": "抖抖空袋",
+        "category": "额度动作",
+        "frames": 120,
+        "sha256": "ae0443397a3bab1fb070cc97f207762b5cb9faa22a603bc6c4bf53b1b2d2abe8"
+      },
+      {
+        "name": "散步一下",
+        "category": "移动与拖拽",
+        "frames": 120,
+        "sha256": "14214ae5bef9e60bb5e958be853451a9f4d1299cd0267529a0bd09d71a43a269"
+      },
+      {
+        "name": "原地踏步",
+        "category": "移动与拖拽",
+        "frames": 96,
+        "sha256": "f19e290287b7a53a31a27dd09338802f4374623052bb6b109530308530876414"
+      },
+      {
+        "name": "提起晃腿",
+        "category": "移动与拖拽",
+        "frames": 72,
+        "sha256": "790e3768ebe376b9a8021b47f4607082b0c6c6c428c78983b01caa830ebb6317"
+      },
+      {
+        "name": "落地站稳",
+        "category": "移动与拖拽",
+        "frames": 64,
+        "sha256": "0acd8c08352002c6db8bbef71af11aec6a0be9a458588d98d51d6a7b9c4a804c"
+      },
+      {
+        "name": "悬空轻晃",
+        "category": "移动与拖拽",
+        "frames": 96,
+        "sha256": "f5f12a32c32d4653980f41edd7039454601ed931ec4b82b55f3b572800af70c9"
+      },
+      {
+        "name": "打个盹",
+        "category": "睡眠",
+        "frames": 72,
+        "sha256": "53deff384ecc0afc8172641727752ec088ae671e55d24f5c1b818de029d0c446"
+      },
+      {
+        "name": "睡梦中",
+        "category": "睡眠",
+        "frames": 96,
+        "sha256": "d2ac2a64ed20525f0055cac337f3882648b3b46becb12dbdc9e8a16eb172064a"
+      },
+      {
+        "name": "慢慢醒来",
+        "category": "睡眠",
+        "frames": 72,
+        "sha256": "4e26f322a1ed9132ead5b4ba8a08d47ff03e28d86075e405ab0a15b815c0e67d"
+      }
+    ],
+    "symphony": [
+      {
+        "name": "交响乐待机",
+        "category": "日常",
+        "frames": 216,
+        "sha256": "cf4a73fea5c960b379b1113cf98a0d8bf42c9a1dad819113e723306da0fddf3a"
+      },
+      {
+        "name": "站久了，放松一下",
+        "category": "日常",
+        "frames": 408,
+        "sha256": "97b39de1965892bea7b5f75f7f6d1942b787fa74c16d04a03580b90eb257a4bd"
+      },
+      {
+        "name": "整理金发夹",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "5b85b764830731adf678c00cfb697b027ec939fb70af714c2a72bd43d58d5912"
+      },
+      {
+        "name": "伸伸懒腰",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "82edbbbb1440151fd1af0839561a26723e1eb79e86d4d7a1fb1b62a71ce0b11b"
+      },
+      {
+        "name": "侧耳听声",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "ef4a59d52debe3f9d5f05ad29efa7560ca232d28d11a08cb85557b327ab6b6fb"
+      },
+      {
+        "name": "暖手喝茶",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "1c70e0d768052a88dedd1e68fe0da06dfff54279ab0c315253ce0f2fceff9390"
+      },
+      {
+        "name": "折扇轻摇",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "5f359cca64e36974a2132a0fcba580aa609a6b7dde3858dec75e738389475b87"
+      },
+      {
+        "name": "轻甩双马尾",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "a5777e1303f5c25f8d4f0e2268d221c25c480cdba7f9c5ce0f5ed76d1380d19f"
+      },
+      {
+        "name": "坐下歇歇",
+        "category": "日常",
+        "frames": 168,
+        "sha256": "66fe1cdfc10dc3a73335d137150d79d2bbf54260afa6aafa2d579873b4c39e00"
+      },
+      {
+        "name": "举起金怀表",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "e2e869581fad9ede6b1876908fbd6708faecc87ace7e5ccb1da7df22a460bc1e"
+      },
+      {
+        "name": "托腮发呆",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "6deab07c8e328435f68116d0985c78d2fa4039ca019af4f25776ee559ecb7826"
+      },
+      {
+        "name": "困到打哈欠",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "1da2579dc88855a9bae847542946185a522735d7648f1b5d741c1a481201ada1"
+      },
+      {
+        "name": "照照手镜",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "529cbb8049a538499df1ec3b5cbfd4d87531ad06e16126f0288024981e143c91"
+      },
+      {
+        "name": "拆开小信封",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "8c2378991d1c2841d3a6324ea708b4a8cd08724eff7f7aa39d68bbcd77bb2cc7"
+      },
+      {
+        "name": "捡起小白花",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "e16deacdf4ed03d718111f90b0510a8cfb00e2426572fe28de515d50218a1120"
+      },
+      {
+        "name": "整理金领结",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "53b7c3cd54fa9454b6053e6345b9c7b17d320362ae0065564ca6eee6199702a5"
+      },
+      {
+        "name": "尝一口小饼干",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "b31efd129012fa482d8373f8d8d5e01f15d404c3593fb914917b1c01155fb765"
+      },
+      {
+        "name": "拨转小风车",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "8b8370096d70c6a0606c0fb840a61e0d710140dba548401877abcc826225f411"
+      },
+      {
+        "name": "踮脚探头",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "573facc6847d13be57998ecd98ddd350eea2f6bec6366b06ec744822a7842e50"
+      },
+      {
+        "name": "揉揉睡眼",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "f50ffde11811b791a6283d5b4b3ceac19d077a271e36a6e6ec510e3efe70cb44"
+      },
+      {
+        "name": "抱住音符枕",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "d8cc8108736e4750d0de736f153a5d714b3d7145643e77d4f5afad522e304f17"
+      },
+      {
+        "name": "拧动小魔方",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "87db8723b0c2517f71e2163804006e9081d945097a1a635455ad5790117c63a0"
+      },
+      {
+        "name": "翻转小沙漏",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "04741c365b41bbddf8af27cd40ee5875b555e0808c961b9c701aeb86182e27ba"
+      },
+      {
+        "name": "蝴蝶落指尖",
+        "category": "日常",
+        "frames": 120,
+        "sha256": "c6d27bdfb3f3d69bc0bcbddf1549ccb03142416b28702255151decb858bc99db"
+      },
+      {
+        "name": "提裙致意",
+        "category": "点击互动",
+        "frames": 106,
+        "sha256": "fcf664095f072f5e7f76fc7b469e9d6fa66d27de3350af2eec2ac4dd1a258e9f"
+      },
+      {
+        "name": "挥手问好",
+        "category": "点击互动",
+        "frames": 120,
+        "sha256": "b4274f5b01401f283f3247759a9dd08bea68ea50a1120bb2caadc6c2ae38fcc8"
+      },
+      {
+        "name": "双手比心",
+        "category": "点击互动",
+        "frames": 120,
+        "sha256": "d74b6d39a3f7a2262a1e90b999fce0963023115d7e1bae5e28708396602d42ca"
+      },
+      {
+        "name": "俏皮眨眼",
+        "category": "点击互动",
+        "frames": 120,
+        "sha256": "690fa1f114c8244b4071bc395dd47ec88e3eb6e10f46f17878124079c5dc753c"
+      },
+      {
+        "name": "掩嘴轻笑",
+        "category": "点击互动",
+        "frames": 120,
+        "sha256": "615b9cff7a17ee1602e35928d54747231f101422c0838c1162108bc9e259f905"
+      },
+      {
+        "name": "轻轻鼓掌",
+        "category": "点击互动",
+        "frames": 120,
+        "sha256": "1fa3007b8a5ba7e2df838fd4bc4b403c14471d06a5d6c7e7f0730d4e4465d30b"
+      },
+      {
+        "name": "脚尖小跳",
+        "category": "点击互动",
+        "frames": 120,
+        "sha256": "bea369180c718ce9cda9ea7b4f0d01e2338a54d34106d1044217fd1e5cb3ab07"
+      },
+      {
+        "name": "送个飞吻",
+        "category": "点击互动",
+        "frames": 120,
+        "sha256": "088c2b3ed56c843edb80e965c22afb512e419381c9f0719269df6d79b9c0bed5"
+      },
+      {
+        "name": "送你小星星",
+        "category": "点击互动",
+        "frames": 120,
+        "sha256": "d17fb0d6882c6532a9570d8c5612decaeabf5099ba48e822261460cdba1d9812"
+      },
+      {
+        "name": "惊讶后仰",
+        "category": "点击互动",
+        "frames": 120,
+        "sha256": "4b509174e087f4839c434aa3a6f2ce4a8fe6795a91eb470d85ce16e90e0587ad"
+      },
+      {
+        "name": "摊手问号",
+        "category": "点击互动",
+        "frames": 120,
+        "sha256": "ab039113073f61eaed9a1f7af6e7f33fa6266b90ab6ffe74a8b6ca34e1f6c7ee"
+      },
+      {
+        "name": "抱臂嘟嘴",
+        "category": "点击互动",
+        "frames": 120,
+        "sha256": "313f8e48bf3a8eb7fc358632e7c3d9a3d204a005f92667b13e08c571bc67491c"
+      },
+      {
+        "name": "攥拳打气",
+        "category": "点击互动",
+        "frames": 120,
+        "sha256": "4a4917f59c8d8bf6315e4c2cf1441387d4bf8d0715e1e52082ecda2d261a430a"
+      },
+      {
+        "name": "八音盒旋转",
+        "category": "舞台",
+        "frames": 240,
+        "sha256": "9bd2e1ba7d4f7fa1989c01280e2c5cda84b45fc905d3e263e1df032f7e321bf8"
+      },
+      {
+        "name": "挥棒指挥",
+        "category": "舞台",
+        "frames": 168,
+        "sha256": "1e06bfb9730525a5846adfc32402796e4803cc2cf51f89a4c4cbfe7763cf39b9"
+      },
+      {
+        "name": "提起三角铁",
+        "category": "舞台",
+        "frames": 120,
+        "sha256": "551a73f739e9019ccfea6729317819372f129e6f27126ed86d0b473d49fce7e3"
+      },
+      {
+        "name": "吹响小号",
+        "category": "舞台",
+        "frames": 120,
+        "sha256": "fb5daf198110ba3fea303e0b095c8499ce47fa72e12436ffb930a98552aded0d"
+      },
+      {
+        "name": "小提琴独奏",
+        "category": "舞台",
+        "frames": 120,
+        "sha256": "aafceea257838e6de07d5b06b5171d8b4534a16fb4d5590819be48a09be89869"
+      },
+      {
+        "name": "轻敲钟琴",
+        "category": "舞台",
+        "frames": 120,
+        "sha256": "fe0706c48a660176c270dd32ae8e74e83e445b97b9d8065d398e82548fe0c855"
+      },
+      {
+        "name": "拨响小竖琴",
+        "category": "舞台",
+        "frames": 120,
+        "sha256": "f2d1abfba179907489a1df54c3f0bdd206c72799c59be57c0fca8664a9998a03"
+      },
+      {
+        "name": "轻摇铃鼓",
+        "category": "舞台",
+        "frames": 120,
+        "sha256": "ace54f5f83f8c2ae89fdcb0ef44539c69906627cee5ed560b82ec16c93e4e3d8"
+      },
+      {
+        "name": "轻弹拇指琴",
+        "category": "舞台",
+        "frames": 120,
+        "sha256": "6dece533f93109ed46467960e58a324128ae5f7228c08653868d8fc7ab3b1f68"
+      },
+      {
+        "name": "跟着节拍",
+        "category": "舞台",
+        "frames": 120,
+        "sha256": "bad17b697b0dd6e41bf2d20e6aefd78e94e1e732cca08ceda9fa382936d22ab7"
+      },
+      {
+        "name": "捧花谢礼",
+        "category": "舞台",
+        "frames": 120,
+        "sha256": "5b1fe884769887b5e85ee4e53582e17093f2694bee23a17d95d377da92f7a19e"
+      },
+      {
+        "name": "两步小华尔兹",
+        "category": "舞台",
+        "frames": 120,
+        "sha256": "1184cdf43f9a1a621d3e62d496b66bdd70b6c345e4f30d0ee588ff0acbd27fe2"
+      },
+      {
+        "name": "画一圈缎带",
+        "category": "舞台",
+        "frames": 120,
+        "sha256": "208ca5bdd2fcec46fa68b5aa9fa3c0d6042097b2f95ab449c77c26df83ea9ba9"
+      },
+      {
+        "name": "发条开场",
+        "category": "舞台",
+        "frames": 192,
+        "sha256": "fd4de8645cddab9a7dba280309284c94494f273e0cfc965f37d215afae1c1df7"
+      },
+      {
+        "name": "交响乐散步",
+        "category": "移动与拖拽",
+        "frames": 120,
+        "sha256": "30d60b09e4a05bd20f45ffaa03119600f0c2f5cdead9b9950aeaf92156bd7b67"
+      },
+      {
+        "name": "悬空轻摆",
+        "category": "移动与拖拽",
+        "frames": 120,
+        "sha256": "aa999a4303a309ac5391aa3621702bac696d0a29c12716ee20953ae7a3f25691"
+      },
+      {
+        "name": "轻轻落地",
+        "category": "移动与拖拽",
+        "frames": 68,
+        "sha256": "2ee5bb626be4c0ceff268c739a0e2e53af487f665c3c4555efdddf0288de91f0"
+      },
+      {
+        "name": "轻轻合眼",
+        "category": "睡眠",
+        "frames": 39,
+        "sha256": "8f6e6a0a7fb53a4fdf23a7eeb14d41b91062681fac6c9fb6415df527cbd9a1ba"
+      },
+      {
+        "name": "闭眼小憩",
+        "category": "睡眠",
+        "frames": 64,
+        "sha256": "a7286e707b1ae85dfc6437fd087964a1e796324f878a6049384b058b7fda2ade"
+      },
+      {
+        "name": "缓缓醒来",
+        "category": "睡眠",
+        "frames": 50,
+        "sha256": "c248446e90781da2610cd21e81a90778a4f13ff2c8c23caace595f585b598c4d"
+      },
+      {
+        "name": "专心读谱",
+        "category": "Codex 联动",
+        "frames": 76,
+        "sha256": "20593c5d2ebcb102a0f674a5cf6db69d0d77fd308bec54b1f2212a0157ac739b"
+      },
+      {
+        "name": "交响乐·举起钱袋",
+        "category": "额度动作",
+        "frames": 120,
+        "sha256": "a288cb1492e4958fbcc50df3bac99e28a5575c62456423ec8db6aa6df092cc5b"
+      },
+      {
+        "name": "交响乐·数数零钱",
+        "category": "额度动作",
+        "frames": 120,
+        "sha256": "c7bfb902a6e661aa3877dd2b3f78ee0e589298027864cffcb76b94a49a7cfc44"
+      },
+      {
+        "name": "交响乐·只剩两枚",
+        "category": "额度动作",
+        "frames": 120,
+        "sha256": "91fc530a06b4a975b20ee185fa94f4623af256f0d6cee5e84f5ffc0d3d630f07"
+      },
+      {
+        "name": "交响乐·抖抖空袋",
+        "category": "额度动作",
+        "frames": 120,
+        "sha256": "82e8a62e465c7ebdca215c2bbf11a8e250fe9d3739fb9d2bafe16dc9cebf6461"
+      }
+    ]
+  }
+}

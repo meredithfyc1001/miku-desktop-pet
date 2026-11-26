@@ -11,6 +11,7 @@ import { createHash } from 'node:crypto';
 import { readAllConfig, flattenPetList } from '../upstream/dsh-pet/dsh-pet/src/host/config.ts';
 import { squashScale } from '../upstream/dsh-pet/dsh-pet/src/shared/physics/squash.ts';
 import { collectReadyPreviews, selectActiveClips, verifyPreviewReport } from './preview-assets.mjs';
+import { loadSymphony } from './symphony.mjs';
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'../..');
 const runtime=join(root,'integrations/dsh/runtime');
@@ -58,12 +59,22 @@ test('Settings preserve earlier choices and reject invalid changes without writi
     const defaults={idle:88,turn:3,move:3};
     assert.deepEqual(loadPreferences(home),{});
     savePreferences(home,{whisper:15, topmost:false},defaults);
-    savePreferences(home,{idle:40, turn:30, move:20, size:419.33},defaults);
-    const saved={whisper:15,topmost:false,idle:40,turn:30,move:20,size:419.33};
+    savePreferences(home,{idle:40, turn:30, move:20, size:419.33, appearance:'symphony'},defaults);
+    const saved={whisper:15,topmost:false,idle:40,turn:30,move:20,size:419.33,appearance:'symphony'};
     assert.deepEqual(loadPreferences(home),saved);
     assert.throws(()=>savePreferences(home,{turn:50},defaults),/100%/);
     assert.throws(()=>savePreferences(home,{size:10000},defaults),/范围/);
+    assert.throws(()=>savePreferences(home,{appearance:'unknown'},defaults),/范围/);
+    assert.throws(()=>savePreferences(home,{symphonyIdleStyle:'unknown'},defaults),/范围/);
     assert.deepEqual(loadPreferences(home),saved);
+    for(const style of ['front','ballet']){
+      writeFileSync(join(home,'miku-preferences.json'),JSON.stringify({...saved,symphonyIdleStyle:style,
+        favorites:['正面站姿待机','提裙致意','站久了，放松一下']}));
+      const migrated={...saved,favorites:['站久了，放松一下','提裙致意']};
+      assert.deepEqual(loadPreferences(home),migrated);
+      savePreferences(home,{size:419.33},defaults);
+      assert.deepEqual(JSON.parse(readFileSync(join(home,'miku-preferences.json'),'utf8')),migrated);
+    }
   } finally {
     rmSync(home,{recursive:true,force:true});
   }
@@ -81,6 +92,7 @@ test('Previews require review of the exact media, the current reference and vali
   assert.throws(()=>verifyPreviewReport(report,'CANDIDATE','REFERENCE',{...review,status:'failed'}));
   assert.throws(()=>verifyPreviewReport(report,'CANDIDATE','REFERENCE',{...review,candidateSha256:'OTHER'}));
 });
+
 
 test('The tray exposes only Miku, and its exit action quits the trial',async()=>{
   const {createTray}=createRequire(import.meta.url)(join(runtime,'runtime/electron-helper/main/tray.js'));
@@ -128,7 +140,7 @@ test('The action menu has one entry per action and uses the selected reviewed as
   const p={assetRoot:'miku',pet:{},animations:config.animations,dragState:{},sleeping:false,frozen:false,facing:'left',stopThrow(){},stopMove(){},setInteractive(){},syncInputBusy(){},syncInputRegions(){},visibleClampRect:()=>({}),closeMenu(){},playOnce(name){played=name;},tryMove(name){moved=name;return name;},mikuWhisperMenu:r.prototype.mikuWhisperMenu};
   r.prototype.initPlayback.call(p,config);
   r.prototype.onContextMenu.call(p,{preventDefault(){},clientX:100,clientY:100});
-  assert.deepEqual(Array.from(tree,item=>item.label),['待办事项','睡觉','回到初始位置','碎碎念','查看 Codex 额度','动作','动作图鉴','桌宠设置','退出桌宠']);
+  assert.deepEqual(Array.from(tree,item=>item.label),['待办事项','睡觉','回到初始位置','碎碎念','查看 Codex 额度','动作','动作图鉴','切换形象','桌宠设置','退出桌宠']);
   assert.deepEqual(Array.from(tree.find(item=>item.label==='碎碎念').children,item=>item.label),
     ['说一句','自动碎碎念（关闭）','模型设置']);
   const groups=tree.find(item=>item.label==='动作').children;
@@ -176,6 +188,59 @@ test('The action menu has one entry per action and uses the selected reviewed as
   assert.ok(!config.animations.moves.actions.some(move=>move.name==='原地踏步'));
   if(previews.some(clip=>clip.action==='flow-nod')){
     assert.equal(selectActiveClips(previews).find(clip=>clip.target==='打个招呼').action,'flow-nod');
+  }
+});
+
+test('The Symphony action menu and catalog stay within the selected appearance',async()=>{
+  const symphony=loadSymphony(root);
+  const r=loadRuntime();
+  let tree;
+  Object.assign(r.shared,{
+    buildMemeBranch:()=>null,displayMenuBranch:()=>({label:'display'}),buildMoreBranch:()=>null,
+    buildMenuTree:()=>[],mountContextMenu:options=>{tree=options.tree;return{close(){}};},
+  });
+  const p={
+    assetRoot:'miku',pet:{mikuAppearance:'symphony',mikuActionNames:new Set(symphony.names)},
+    dragState:{},sleeping:false,frozen:false,facing:'left',stopThrow(){},stopMove(){},setInteractive(){},
+    syncInputBusy(){},syncInputRegions(){},visibleClampRect:()=>({}),closeMenu(){},
+    mikuWhisperMenu:r.prototype.mikuWhisperMenu,
+  };
+  r.prototype.initPlayback.call(p,{...p.pet,animations:symphony.animations});
+  r.prototype.onContextMenu.call(p,{preventDefault(){},clientX:100,clientY:100});
+  assert.deepEqual(Array.from(tree.find(item=>item.label==='切换形象').children, item=>item.label),
+    ['○ 未来有你 2021','● 交响乐 2020']);
+  const relax='站久了，放松一下';
+  assert.ok(!tree.some(item=>item.label==='待机姿势'));
+  assert.deepEqual(symphony.animations.idle,['交响乐待机']);
+  const groups=tree.find(item=>item.label==='动作').children;
+  const names=Array.from(groups,group=>Array.from(group.children,leaf=>leaf.anim)).flat();
+  assert.ok(!names.includes('正面站姿待机'));
+  assert.equal(names.filter(name=>name===relax).length,1);
+  assert.ok(Array.from(groups.find(group=>group.label==='日常').children,leaf=>leaf.anim).includes(relax));
+  assert.equal(symphony.animations.categories.flatMap(group=>group.actions).filter(name=>name===relax).length,1);
+  assert.ok(symphony.animations.categories.find(group=>group.id==='日常').actions.includes(relax));
+  assert.ok(names.includes('交响乐待机'));
+  assert.ok(names.includes('提裙致意'));
+  assert.ok(names.every(name=>symphony.names.includes(name)));
+  const quotaNames=Object.values(symphony.quota);
+  assert.deepEqual(symphony.animations.events.balance,quotaNames);
+  const quotaGroup=tree.find(item=>item.label==='动作').children.find(group=>group.label==='额度动作');
+  assert.deepEqual(Array.from(quotaGroup?.children??[],leaf=>leaf.anim),quotaNames);
+  const reactions=[];
+  const quotaPet={
+    pet:{mikuAppearance:'symphony',mikuQuotaActions:symphony.quota},
+    clearMikuQuotaProp(){},playOnce(name){reactions.push(name);},
+  };
+  for(const tier of ['full','normal','low','empty']) r.prototype.playMikuQuotaReaction.call(quotaPet,tier);
+  assert.deepEqual(reactions,quotaNames);
+  const ui=join(runtime,'runtime/electron-helper');
+  const catalog=JSON.parse(readFileSync(join(ui,'miku-symphony-catalog.json'),'utf8'));
+  assert.deepEqual(catalog.map(action=>action.name).sort(),symphony.names.toSorted());
+  assert.deepEqual(catalog.filter(action=>action.name===relax).map(action=>action.category),['日常']);
+  assert.ok(!existsSync(join(root,'data-dsh/dsh-pet/pet/miku-animation/正面站姿待机.webm')));
+  for(const clip of symphony.clips){
+    const actual=join(root,'data-dsh/dsh-pet/pet/miku-animation',clip.target+'.webm');
+    assert.ok(readFileSync(actual).equals(readFileSync(clip.source)),clip.target);
   }
 });
 
@@ -353,8 +418,103 @@ test('Dragging loops its suspended pose; normal one-shot gestures still end',asy
     assert.equal(pet.videoB.style.transform,'');
   }
 });
+for (const [appearance,idle,turn] of [
+  ['symphony','交响乐待机','八音盒旋转'], ['classic','待机眨眼','左右张望'],
+]) test(appearance+' idle keeps its playing video across a loop and can advance to another action',()=>{
+  const r=loadRuntime();
+  const playback=r.prototype.switchTo;
+  const video=()=>({
+    currentTime:0,duration:9,style:{},classList:{add(){},remove(){}},readyState:2,
+    load(){this.loads=(this.loads??0)+1;},
+    pause(){},play:()=>Promise.resolve(),addEventListener(){},removeEventListener(){},
+  });
+  let rounds=0;
+  const pet={
+    assetRoot:'miku',pet:{mikuAppearance:appearance,mikuActionNames:new Set([idle,turn])},
+    assetBase:'/thumb/miku/',front:0,gen:0,pending:null,videoA:video(),videoB:video(),
+    dragState:{dragging:false},animations:{idle:[idle],drag:[]},reportPlayback(){},
+    handleEnded(){playback.call(this,++rounds===1?idle:turn,true);},
+  };
+  playback.call(pet,idle,true);
+  assert.equal(pet.videoB.loop,true);
+  assert.equal(pet.videoB.onended,null);
+  const wrap=()=>{
+    pet.videoB.currentTime=8.9;pet.videoB.ontimeupdate();
+    pet.videoB.currentTime=.08;pet.videoB.ontimeupdate();
+  };
+  wrap();
+  assert.equal(rounds,1);
+  assert.equal(pet.front,1);
+  assert.equal(pet.videoB.loads,1);
+  wrap();
+  assert.equal(rounds,2);
+  assert.equal(pet.front,0);
+  assert.equal(pet.videoA.loop,false);
+  assert.equal(pet.videoB.ontimeupdate,null);
+  playback.call(pet,idle,true,'explicit-playback');
+  assert.equal(pet.videoB.loop,false);
+  assert.equal(typeof pet.videoB.onended,'function');
+});
+test('Superseded and failed Miku loads cannot change the current gesture or its error handler',()=>{
+  const r=loadRuntime(), handlers=[];
+  const video=()=>({readyState:0,style:{},classList:{add(){},remove(){}},load(){},pause(){},
+    addEventListener:(_event,handler)=>handlers.push(handler),removeEventListener(){},play:()=>Promise.resolve()});
+  const pet={assetRoot:'miku',assetBase:'/miku/',pet:{id:'miku'},animations:{idle:[],drag:[]},
+    dragState:{},gen:0,front:0,videoA:video(),videoB:video(),reportPlayback(){}};
+  const play=name=>r.prototype.switchTo.call(pet,name,true);
+  play('first');
+  play('second');
+  const onError=pet.videoB.onerror;
+  handlers[0]();
+  assert.equal(pet.videoB.onerror,onError);
+  assert.equal(pet.front,0);
+  onError();
+  handlers[1]();
+  assert.equal(pet.front,0);
+  play('third');
+  handlers[2]();
+  assert.equal(pet.front,1);
+  pet.animations.idle=['idle'];
+  pet.videoB.ended=true;
+  const recoveries=[];
+  pet.playOnce=name=>{recoveries.push(name);play(name);};
+  play('unavailable');
+  pet.videoA.onerror();
+  assert.deepEqual(recoveries,['idle']);
+  handlers[3]();
+  assert.equal(pet.front,1);
+  pet.videoA.onerror();
+  assert.deepEqual(recoveries,['idle']);
+});
+test('A randomly selected Symphony standing break plays once and always returns to lifted-foot idle',()=>{
+  const r=loadRuntime();
+  const animations=loadSymphony(root).animations;
+  const relax='站久了，放松一下';
+  const idle='交响乐待机';
+  const pet={pet:{mikuAppearance:'symphony'},assetRoot:'miku',animations,dragState:{},
+    anim:idle,facing:'left',stopMove(){},resumeWorkStatusAnim:()=>false,
+    playOnce(name){this.anim=name;}};
+  Object.assign(r.shared,{rollKind:()=>'action',pickCategoryAction:categories=>{
+    const group=categories.find(c=>c.id==='日常');
+    assert.ok(group.actions.includes(relax));return {id:group.id,name:relax};
+  },isEventAnim:()=>false,pick:pool=>{assert.deepEqual(pool,[idle]);return pool[0];}});
+  r.prototype.playIdle.call(pet);
+  assert.equal(pet.anim,relax);
+  pet.playIdle=()=>assert.fail('The action ended by rolling again before returning to lifted-foot idle');
+  r.prototype.handleEnded.call(pet);
+  assert.equal(pet.anim,idle);
+});
+test('An outgoing Miku gesture does not interrupt its already requested successor',()=>{
+  const r=loadRuntime();
+  const receipts=[];
+  const pet={assetRoot:'miku',playback:'old',pending:{anim:'new'},dragState:{},animations:{},
+    reportPlayback:(id,status)=>receipts.push([id,status]),playIdle(){assert.fail('replaced pending gesture');}};
+  r.prototype.handleEnded.call(pet);
+  assert.deepEqual(receipts,[['old','ended']]);
+  assert.equal(pet.pending.anim,'new');
+});
 test('Every active Miku video decodes completely with a visible transparent silhouette',()=>{
-  const clips=selectActiveClips(collectReadyPreviews(root));
+  const clips=[...selectActiveClips(collectReadyPreviews(root)),...loadSymphony(root).clips];
   assert.ok(clips.length>0);
   const report=[];
   for(const {target,frames} of clips){

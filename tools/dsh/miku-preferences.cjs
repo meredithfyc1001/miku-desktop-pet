@@ -11,6 +11,7 @@ const ranges = {
 };
 const flags = ['topmost', 'wander', 'followPet', 'confine', 'ceilingBounce', 'clickSound', 'codexStatus'];
 const choices = {
+  appearance: ['classic', 'symphony'],
   corner: ['top-left', 'top-right', 'bottom-left', 'bottom-right'],
   family: ['candy', 'system', 'yahei', 'youyuan', 'kaiti', 'simsun', 'comic'],
   whisper: [null, 0, 5, 15, 30],
@@ -38,7 +39,11 @@ function validateUpdate(input) {
 function loadPreferences(home) {
   try {
     const saved = JSON.parse(readFileSync(join(home, 'miku-preferences.json'), 'utf8'));
-    return Object.fromEntries(Object.entries(saved ?? {}).filter(([key, value]) => valid(key, value)));
+    const prefs = Object.fromEntries(Object.entries(saved ?? {}).filter(([key, value]) => valid(key, value)));
+    if (prefs.favorites?.includes('正面站姿待机')) {
+      prefs.favorites = [...new Set(prefs.favorites.map(name => name === '正面站姿待机' ? '站久了，放松一下' : name))];
+    }
+    return prefs;
   } catch (error) {
     if (error.code === 'ENOENT') return {};
     throw error;
@@ -69,7 +74,8 @@ function effectivePreferences(merged, saved, topmost) {
   const physics = entry.physics ?? merged.main?.physics ?? {};
   const weights = entry.animationWeights ?? {};
   return {
-    name: pet.name || 'Miku', size: pet.size, corner: pet.position.corner,
+    name: saved.appearance === 'symphony' ? 'Miku · 交响乐 2020' : pet.name || 'Miku',
+    size: pet.size, corner: pet.position.corner,
     marginX: pet.position.marginX, marginY: pet.position.marginY, topmost,
     wander: !pet.fixedEnabled, fontSize: font.size ?? 18, family: font.family ?? 'system',
     followPet: font.followPet ?? true, confine: entry.confineToScreen === true || merged.main?.confineToScreen === true,
@@ -83,4 +89,4 @@ function effectivePreferences(merged, saved, topmost) {
   };
 }
 
-module.exports = { loadPreferences, savePreferences, validateUpdate, effectivePreferences };
+module.exports = { loadPreferences, savePreferences, validateUpdate, effectivePreferences, isValidPreference: valid };

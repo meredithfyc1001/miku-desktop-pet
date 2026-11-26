@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-export function buildActionCatalog(root, folder, clips, groups) {
+export function buildActionCatalog(root, folder, clips, groups, filename = 'miku-action-catalog.json') {
   const posters = join(folder, 'miku-action-posters');
   mkdirSync(posters, { recursive: true });
   const categories = new Map();
@@ -25,5 +25,5 @@ export function buildActionCatalog(root, folder, clips, groups) {
   });
   const rank = new Map([...categories.keys()].map((name, index) => [name, index]));
   catalog.sort((a, b) => (rank.get(a.name) ?? rank.size) - (rank.get(b.name) ?? rank.size));
-  writeFileSync(join(folder, 'miku-action-catalog.json'), JSON.stringify(catalog, null, 2) + '\n');
+  writeFileSync(join(folder, filename), JSON.stringify(catalog, null, 2) + '\n');
 }

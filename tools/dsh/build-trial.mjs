@@ -1,10 +1,11 @@
 /** Build a local Miku adapter around the pinned dsh-pet runtime. No upstream assets are bundled. */
-import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, unlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { collectReadyPreviews, selectActiveClips } from './preview-assets.mjs';
 import { buildActionCatalog } from './action-catalog.mjs';
+import { loadSymphony, standingBreak } from './symphony.mjs';
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 const upstream=join(root,'tools/upstream/dsh-pet');
@@ -14,6 +15,13 @@ const pack=join(root,'integrations/dsh/pack');
 const data=join(root,'data-dsh');
 const manifest=JSON.parse(readFileSync(join(pack,'miku-animation/manifest.json'),'utf8'));
 const activeClips=selectActiveClips(collectReadyPreviews(root));
+const { clips: symphonyClips, groups: symphonyGroups, ...symphony } = loadSymphony(root);
+// Both appearances are installed in the same animation directory on Windows.
+const classicTargets = new Set(activeClips.map(clip => clip.target.toLowerCase()));
+const sharedTargets = symphonyClips.filter(clip => classicTargets.has(clip.target.toLowerCase()));
+if (sharedTargets.length) {
+  throw new Error('Miku appearances share animation filenames: ' + sharedTargets.map(clip => clip.target).join(', '));
+}
 const menuOnlyActions=activeClips.filter(clip=>clip.menuOnly).map(clip=>clip.target);
 const lifeActions=activeClips.filter(clip=>clip.lifeAction).map(clip=>clip.target);
 const clickActions=activeClips.filter(clip=>clip.clickAction).map(clip=>clip.target);
@@ -38,7 +46,7 @@ mkdirSync(join(dest,'assets'),{recursive:true});
 cpSync(join(pkg,'assets/config.jsonc'),join(dest,'assets/config.jsonc'));
 cpSync(join(pack,'miku-animation/待机眨眼.png'),join(dest,'assets/logo.png'));
 cpSync(join(upstream,'LICENSE'),join(dest,'LICENSE.dsh-pet'));
-writeFileSync(join(dest,'package.json'),JSON.stringify({name:'miku-video-pet',version:'0.1.0',type:'module'},null,2));
+writeFileSync(join(dest,'package.json'),JSON.stringify({name:'miku-video-pet',version:'0.2.0',type:'module'},null,2));
 
 // Apply only guarded, reproducible adaptations to the copied runtime.
 function patch(file,from,to,count=1){
@@ -51,7 +59,29 @@ patch('runtime/electron-helper/miku-quota.js','const MIKU_QUOTA_VIDEOS = {};',
 for(const file of ['sprite/playback.js','sprite/motion.js'])
   patch('runtime/electron-helper/'+file,"this.facing === 'right' ? 'scaleX(-1)'", "this.assetRoot !== 'miku' && this.facing === 'right' ? 'scaleX(-1)'");
 patch('runtime/electron-helper/sprite/motion.js',"this.facing === 'right' ? 'scaleX(-1) '","this.assetRoot !== 'miku' && this.facing === 'right' ? 'scaleX(-1) '");
-patch('runtime/electron-helper/sprite/playback.js','el.loop = !nextOnce;',"el.loop = !nextOnce || (this.assetRoot === 'miku' && this.dragState.dragging && next !== '提起晃腿' && this.animations.drag.includes(next));");
+patch('runtime/electron-helper/sprite/playback.js','    el.loop = !nextOnce;',`    const nativeIdle = nextOnce && !playbackId && !url &&
+      this.assetRoot === 'miku' && this.animations.idle?.includes(next);
+    el.loop = nativeIdle || !nextOnce || (this.assetRoot === 'miku' &&
+      this.dragState.dragging && next !== '提起晃腿' && this.animations.drag.includes(next));
+    el.ontimeupdate = null;
+    if (nativeIdle) {
+      let previousTime = 0;
+      el.ontimeupdate = () => {
+        const time = el.currentTime;
+        const wrapped = previousTime > el.duration * .75 && time < el.duration * .25;
+        previousTime = time;
+        if (!wrapped || this.pending || (this.front === 0 ? this.videoA : this.videoB) !== el) return;
+        // Run the ordinary random-action decision at the loop boundary. If it
+        // chooses idle again, Chromium is already playing the next cycle.
+        this.mikuIdleWrapped = next;
+        try { this.handleEnded(); }
+        finally { this.mikuIdleWrapped = null; }
+      };
+    }`);
+patch('runtime/electron-helper/sprite/playback.js','    el.onended = nextOnce ? () => this.handleEnded() : null;',
+  '    el.onended = nextOnce && !nativeIdle ? () => this.handleEnded() : null;');
+patch('runtime/electron-helper/sprite/playback.js','        old.onended = null;',
+  '        old.onended = null;\n        old.ontimeupdate = null;');
 patch('runtime/electron-helper/sprite/playback.js','    if (this.dragState.active) return;',`    if (this.dragState.active) {
       if (this.assetRoot === 'miku' && this.dragState.dragging && this.anim === '提起晃腿' && this.animations.drag.length) {
         const suspended = S.pick(this.animations.drag);
@@ -62,12 +92,12 @@ patch('runtime/electron-helper/sprite/playback.js','    if (this.dragState.activ
       return;
     }`);
 patch('runtime/electron-helper/sprite/playback.js','if (animations.drag.includes(this.anim) || animations.clicks.includes(this.anim)) {',
-  `if (animations.drag.includes(this.anim) || animations.clicks.includes(this.anim) || (this.assetRoot === 'miku' && (this.mikuQuotaProp || ${JSON.stringify(['落地站稳',...lifeActions,...Object.values(quotaVideos)])}.includes(this.anim)))) {`);
+  `if (animations.drag.includes(this.anim) || animations.clicks.includes(this.anim) || (this.assetRoot === 'miku' && (this.mikuQuotaProp || this.anim === this.pet?.mikuLanding || ${JSON.stringify(['落地站稳',...lifeActions,...Object.values(quotaVideos)])}.includes(this.anim)))) {`);
 patch('runtime/electron-helper/sprite/playback.js','const isEvent = S.isEventAnim(animations.events, this.anim);',
   "const isEvent = !(this.assetRoot === 'miku' && animations.idle.includes(this.anim)) && S.isEventAnim(animations.events, this.anim);");
 patch('runtime/electron-helper/sprite/motion.js',"const token = ++this.squashToken;","if (this.assetRoot === 'miku') depth = Math.max(.9, depth);\n    const token = ++this.squashToken;");
 patch('runtime/electron-helper/sprite/input.js','this.playOnce(S.pick(this.animations.drag));',
-  "this.playOnce(this.assetRoot === 'miku' ? '提起晃腿' : S.pick(this.animations.drag));");
+  "this.playOnce(this.assetRoot === 'miku' && this.pet?.mikuAppearance !== 'symphony' ? '提起晃腿' : S.pick(this.animations.drag));");
 patch('runtime/electron-helper/sprite/input.js',`    playClickSound();
     if (!this.animations.clicks.length) return;
     this.pendingSquash = true; // 等新点击动画切到前台后 Q 弹（压新首帧，与浏览器一致）
@@ -83,22 +113,58 @@ patch('runtime/electron-helper/sprite/input.js','    if (isOpenShortcut(e)) {\n 
       if (this.assetRoot === 'miku') this.cancelMikuActionClick();
       this.stopThrow();`);
 patch('runtime/electron-helper/sprite/playback.js','  switchTo(next, nextOnce, playbackId, url) {',
-  "  switchTo(next, nextOnce, playbackId, url) {\n    if (this.assetRoot === 'miku') this.mikuCatalogPlaying = null;");
+  `  switchTo(next, nextOnce, playbackId, url) {
+    if (this.assetRoot === 'miku') this.mikuCatalogPlaying = null;
+    if (this.pet?.mikuAppearance === 'symphony' && !url && !this.pet.mikuActionNames.has(next)) {
+      next = this.anim = this.animations.idle[0];
+    }
+    if (next && this.mikuIdleWrapped === next && nextOnce && !playbackId && !url) return;`);
+patch('runtime/electron-helper/sprite/playback.js',
+  "      el.onerror = null;\n      if (this.pending && this.pending.gen !== gen) return;",
+  "      if (this.pending?.gen !== gen) return;\n      el.onerror = null;");
+patch('runtime/electron-helper/sprite/playback.js',
+  "      this.reportPlayback(done, 'ended');\n    }",
+  "      this.reportPlayback(done, 'ended');\n    }\n    if (this.assetRoot === 'miku' && this.pending) return;");
+patch('runtime/electron-helper/sprite/playback.js',
+  "    };\n    const loadTimer = window.setTimeout",
+  `      if (this.assetRoot === 'miku' && !this.frozen && !this.sleeping && !this.dragState.active) {
+        const front = this.front === 0 ? this.videoA : this.videoB;
+        const idle = this.animations.idle?.[0];
+        if (front?.ended && idle && next !== idle) this.playOnce(idle);
+      }
+    };
+    const loadTimer = window.setTimeout`);
+patch('runtime/electron-helper/sprite/playback.js','    this.sleepSet = { start: state.start, loop: state.loop, end: state.end };',`    this.hostSleepSet = { start: state.start, loop: state.loop, end: state.end };
+    this.sleepSet = this.pet.mikuSleep ?? this.hostSleepSet;`);
+patch('runtime/electron-helper/sprite/playback.js','    this.playOnce(state.start);','    this.playOnce(this.sleepSet.start);');
+// Local menu selections play through once, including a walk which also moves the window.
+patch('runtime/electron-helper/sprite/menu.js',
+  "      else if (moved === true && playbackId) this.reportPlayback(playbackId, 'failed', 'busy');",
+  `      else if (moved === true && playbackId) this.reportPlayback(playbackId, 'failed', 'busy');
+      if (moved !== true && !fromHost && !playbackId && this.pet?.mikuAppearance === 'symphony') this.mikuCatalogPlaying = leaf.anim;`);
+patch('runtime/electron-helper/sprite/menu.js','    this.playOnce(leaf.anim, playbackId);\n  },',
+  `    this.playOnce(leaf.anim, playbackId);
+    if (!fromHost && !playbackId && this.pet?.mikuAppearance === 'symphony') this.mikuCatalogPlaying = leaf.anim;
+  },`);
+patch('runtime/electron-helper/sprite/playback.js',
+  '        this.sleepPhase = null;\n        this.playIdle();',
+  `        this.sleepPhase = null;
+        if (this.pet?.mikuAppearance === 'symphony' && !this.frozen) this.playOnce(this.animations.idle[0]);
+        else this.playIdle();`);
 patch('runtime/electron-helper/sprite/playback.js','    const { animations } = { animations: this.animations };', `    const { animations } = { animations: this.animations };
-    if (this.assetRoot === 'miku' && this.mikuCatalogPlaying === this.anim) {
-      if (this.pending?.anim === this.anim) return;
+    if (this.assetRoot === 'miku' && (this.mikuCatalogPlaying === this.anim || this.anim === ${JSON.stringify(standingBreak)})) {
       this.mikuCatalogPlaying = null;
       if (this.resumeWorkStatusAnim()) return;
       if (animations.idle.length) this.playOnce(S.pick(animations.idle, this.anim));
       return;
     }`);
 patch('runtime/electron-helper/sprite/input.js','if (!this.sleeping && !this.resumeWorkStatusAnim()) {',`const resumeIdle = !this.sleeping && !this.resumeWorkStatusAnim();
-      const playMikuLanding = this.assetRoot === 'miku' && resumeIdle && !this.frozen;
+      const playMikuLanding = this.assetRoot === 'miku' && Boolean(this.pet.mikuLanding) && resumeIdle && !this.frozen;
       if (resumeIdle && !playMikuLanding) {`);
 patch('runtime/electron-helper/sprite/input.js','this.startThrow(px, py, v.vx, v.vy);','this.startThrow(px, py, v.vx, v.vy, playMikuLanding);');
 patch('runtime/electron-helper/sprite/input.js','this.startThrow(px, py, vel.vx, vel.vy);','this.startThrow(px, py, vel.vx, vel.vy, playMikuLanding);');
 patch('runtime/electron-helper/sprite/input.js','window.__dshPetDebug.lastDragRelease = { x: this.pos.x, y: this.pos.y };',
-  "window.__dshPetDebug.lastDragRelease = { x: this.pos.x, y: this.pos.y };\n          if (playMikuLanding) this.playOnce('落地站稳');");
+  "window.__dshPetDebug.lastDragRelease = { x: this.pos.x, y: this.pos.y };\n          if (playMikuLanding) this.playOnce(this.pet.mikuLanding);");
 patch('runtime/electron-helper/sprite/motion.js','  startThrow(px, py, vx, vy) {\n    this.stopDragFollow();\n    this.stopMove();',`  startThrow(px, py, vx, vy, playMikuLanding = false) {
     this.stopDragFollow();
     this.stopMove();
@@ -109,7 +175,7 @@ patch('runtime/electron-helper/sprite/motion.js','  startThrow(px, py, vx, vy) {
       this.switchTo(suspended, false);
     }`);
 patch('runtime/electron-helper/sprite/motion.js','window.__dshPetDebug.lastDragRelease = { x: this.pos.x, y: this.pos.y };',
-  "window.__dshPetDebug.lastDragRelease = { x: this.pos.x, y: this.pos.y };\n        if (suspended && this.anim === suspended && !this.sleeping && !this.frozen) this.playOnce('落地站稳');");
+  "window.__dshPetDebug.lastDragRelease = { x: this.pos.x, y: this.pos.y };\n        if (suspended && this.anim === suspended && !this.sleeping && !this.frozen) this.playOnce(this.pet.mikuLanding);");
 patch('runtime/electron-helper/main.js',"if (APP_MODE) app.setPath('userData', path.join(app.getPath('appData'), 'dsh-pet'));", "if (APP_MODE) app.setPath('userData', path.join(process.env.DSH_HOME, 'chromium'));");
 patch('runtime/electron-helper/main.js','/** 托盘：显示开关与退出入口。 */',`const mikuCodex = require('./miku-codex-status.cjs').createStatusMonitor({
   publish(event) {
@@ -152,13 +218,14 @@ patch('runtime/electron-helper/sprite.js','    this.bindEvents();',
 patch('runtime/electron-helper/sprite.js','  dispose() {',
   "  dispose() {\n    if (this.assetRoot === 'miku') { this.disposeMikuWhisper(); this.clearMikuQuotaProp(); this.cancelMikuActionClick(); }");
 patch('runtime/electron-helper/sprite/init.js','    this.animations = pet.animations;',
-  `    this.animations = this.assetRoot === 'miku'
+  `    this.animations = this.assetRoot === 'miku' && pet.mikuAppearance !== 'symphony'
       ? {...pet.animations, clicks: [...new Set([...pet.animations.clicks, ...${JSON.stringify(clickActions)}])]}
       : pet.animations;`);
 patch('runtime/electron-helper/preload.js',"contextBridge.exposeInMainWorld('petBridge', {", `contextBridge.exposeInMainWorld('petBridge', {
   quitMiku() { ipcRenderer.send('miku:quit'); },
   openMikuSettings() { ipcRenderer.send('miku:settings:open'); },
   openMikuActions() { ipcRenderer.send('miku:actions:open'); },
+  setMikuAppearance(value) { return ipcRenderer.invoke('miku:appearance', value); },
   onMikuAction(listener) {
     ipcRenderer.on('miku:actions:play', (_event, id, name) => {
       ipcRenderer.send('miku:actions:played', id, listener(name) === true);
@@ -176,15 +243,35 @@ patch('runtime/electron-helper/renderer.js','  return {\n    pets: S.flattenConf
   const font = merged?.miku?.font || merged?.main?.font || S.DEFAULT_FONT;
   const physics = merged?.miku?.physics || merged?.main?.physics || S.DEFAULT_PHYSICS;
   if (pet) {
-    pet.name = prefs.name ?? pet.name;
+    pet.mikuAppearance = prefs.appearance ?? 'classic';
+    const symphony = pet.mikuAppearance === 'symphony';
+    pet.name = prefs.name ?? (symphony ? 'Miku · 交响乐 2020' : pet.name);
     pet.size = prefs.size ?? pet.size;
     pet.fixedEnabled = prefs.wander === undefined ? pet.fixedEnabled : !prefs.wander;
     pet.mikuWhisperInterval = prefs.whisper;
-    pet.mikuFavorites = [...new Set(prefs.favorites ?? [])].filter(name => MIKU_ACTION_NAMES.has(name));
+    pet.mikuActionNames = symphony ? MIKU_SYMPHONY_NAMES : MIKU_ACTION_NAMES;
+    pet.mikuLanding = symphony ? MIKU_SYMPHONY.landing : '落地站稳';
+    pet.mikuFavorites = [...new Set(prefs.favorites ?? [])].filter(name => pet.mikuActionNames.has(name));
+    if (symphony) {
+      pet.animations = { ...MIKU_SYMPHONY.animations };
+      pet.mikuSleep = MIKU_SYMPHONY.sleep;
+      pet.mikuCodexActions = MIKU_SYMPHONY.codex;
+      pet.mikuQuotaActions = MIKU_SYMPHONY.quota;
+    }
     pet.position = { ...pet.position, corner: prefs.corner ?? pet.position.corner,
       marginX: prefs.marginX ?? pet.position.marginX, marginY: prefs.marginY ?? pet.position.marginY };
     pet.animationWeights = { ...pet.animationWeights, idle: prefs.idle ?? pet.animationWeights?.idle,
       turn: prefs.turn ?? pet.animationWeights?.turn, move: prefs.move ?? pet.animationWeights?.move };
+    if (symphony) {
+      if (!pet.animations.turn.length) {
+        pet.animationWeights.idle += pet.animationWeights.turn;
+        pet.animationWeights.turn = 0;
+      }
+      if (!pet.animations.moves.actions.length) {
+        pet.animationWeights.idle += pet.animationWeights.move;
+        pet.animationWeights.move = 0;
+      }
+    }
     pet.physics = { ...physics, gravity: prefs.gravity ?? physics.gravity, restitution: prefs.restitution ?? physics.restitution,
       groundFriction: prefs.groundFriction ?? physics.groundFriction, throwPower: prefs.throwPower ?? physics.throwPower,
       ceilingBounce: prefs.ceilingBounce ?? physics.ceilingBounce };
@@ -211,28 +298,40 @@ patch('runtime/electron-helper/sprite.js','    this.sendBounds(x, y);\n  }\n\n  
 
   /** 抛掷空间`);
 patch('runtime/electron-helper/renderer.js','async function boot() {','async function boot(keepPosition = false) {');
+patch('runtime/electron-helper/renderer.js','    for (const s of sprites) s.playIdle();',`    for (const s of sprites) {
+      if (sleep && s.animations.sleep?.length) s.setSleep(sleep);
+      else if (current?.pet.mikuAppearance !== s.pet.mikuAppearance && s.assetRoot === 'miku') s.playOnce(s.animations.idle[0]);
+      else s.playIdle();
+    }`);
 patch('runtime/electron-helper/renderer.js','    for (const s of sprites) s.dispose();\n    sprites = [new PetSprite(pet)];',`    const current = sprites[0];
     const previous = keepPosition && current ? { rx: current.currentCenterX() / VIEW.w, ry: current.currentCenterY() / VIEW.h } : null;
+    const sleep = current?.sleeping && current.sleepPhase !== 'end'
+      ? { sleeping: true, ...current.hostSleepSet } : null;
     for (const s of sprites) s.dispose();
     sprites = [new PetSprite(pet)];
     if (previous) {
       sprites[0].customPos = previous;
       sprites[0].relayout({ x: VIEW.x, y: VIEW.y, w: VIEW.w, h: VIEW.h });
     }`);
-patch('runtime/electron-helper/renderer.js','injectAssets();\nvoid boot();',`window.petBridge?.onMikuPreferencesChanged?.(keys => {
-  if (keys.some(key => !['topmost', 'codexStatus'].includes(key))) void boot(!keys.some(key => ['corner', 'marginX', 'marginY'].includes(key)));
+patch('runtime/electron-helper/renderer.js','injectAssets();\nvoid boot();',`const MIKU_ACTION_NAMES = new Set(${JSON.stringify(catalogActionNames)});
+const MIKU_SYMPHONY = ${JSON.stringify(symphony)};
+const MIKU_SYMPHONY_NAMES = new Set(MIKU_SYMPHONY.names);
+const MIKU_CLASSIC_SLEEP = { start: '打个盹', loop: '睡梦中', end: '慢慢醒来' };
+window.petBridge?.onMikuPreferencesChanged?.(keys => {
+  if (keys.some(key => !['topmost', 'codexStatus'].includes(key))) {
+    void boot(!keys.some(key => ['corner', 'marginX', 'marginY'].includes(key)));
+  }
 });
-const MIKU_ACTION_NAMES = new Set(${JSON.stringify(catalogActionNames)});
 window.petBridge?.onMikuFavoritesChanged?.(names => {
   const pet = sprites.find(sprite => sprite.assetRoot === 'miku');
   if (pet) {
     pet.cancelMikuActionClick();
-    pet.pet.mikuFavorites = names.filter(name => MIKU_ACTION_NAMES.has(name));
+    pet.pet.mikuFavorites = names.filter(name => pet.pet.mikuActionNames.has(name));
   }
 });
 window.petBridge?.onMikuAction?.(name => {
   const pet = sprites.find(sprite => sprite.assetRoot === 'miku');
-  return MIKU_ACTION_NAMES.has(name) && pet?.playMikuCatalogAction(name) === true;
+  return pet?.pet.mikuActionNames.has(name) && pet.playMikuCatalogAction(name) === true;
 });
 let lastMikuCodexEvent;
 window.petBridge?.onMikuCodexStatus?.(event => {
@@ -268,7 +367,8 @@ patch('runtime/electron-helper/sprite/menu.js','if (!tree.length) return;',`if (
       const {idle, clicks, turn, moves, drag, categories} = this.animations;
       const daily = categories.find(category => category.id === '小动作')?.actions ?? [];
       const pickup = categories.find(category => category.id === '动作查看')?.actions ?? [];
-      const groups = [
+      const symphony = this.pet.mikuAppearance === 'symphony';
+      const groups = symphony ? ${JSON.stringify(symphonyGroups.filter(group => group.label !== '睡眠'))} : [
         {label:'日常', names:[...idle, ...clicks, ...turn, ...daily]},
         ...categories.filter(category => !['小动作', '动作查看'].includes(category.id))
           .map(category => ({label:category.id, names:category.actions})),
@@ -292,11 +392,21 @@ patch('runtime/electron-helper/sprite/menu.js','if (!tree.length) return;',`if (
         {label:'查看 Codex 额度', action:'miku-codex-quota'},
         {label:'动作', children},
         {label:'动作图鉴', action:'miku-actions'},
+        {label:'切换形象', children:[
+          {label:(symphony ? '○ ' : '● ') + '未来有你 2021', action:'miku-appearance', value:'classic'},
+          {label:(symphony ? '● ' : '○ ') + '交响乐 2020', action:'miku-appearance', value:'symphony'},
+        ]},
         {label:'桌宠设置', action:'miku-settings'},
         {label:'退出桌宠', action:'miku-quit'});
     }
     if (!tree.length) return;`);
-patch('runtime/electron-helper/sprite/menu.js',"if (!leaf || typeof leaf !== 'object') return;", "if (!leaf || typeof leaf !== 'object') return;\n    if (this.assetRoot === 'miku' && leaf.action === 'miku-actions') { window.petBridge.openMikuActions(); return; }\n    if (this.assetRoot === 'miku' && leaf.action === 'miku-settings') { window.petBridge.openMikuSettings(); return; }\n    if(this.assetRoot === 'miku' && leaf.action === 'miku-quit') { window.petBridge.quitMiku(); return; }");
+patch('runtime/electron-helper/sprite/menu.js',"if (!leaf || typeof leaf !== 'object') return;", `if (!leaf || typeof leaf !== 'object') return;
+    if (this.assetRoot === 'miku') {
+      if (leaf.action === 'miku-actions') return window.petBridge.openMikuActions();
+      if (leaf.action === 'miku-settings') return window.petBridge.openMikuSettings();
+      if (leaf.action === 'miku-appearance') return window.petBridge.setMikuAppearance(leaf.value).catch(error => console.error(error));
+      if (leaf.action === 'miku-quit') return window.petBridge.quitMiku();
+    }`);
 patch('runtime/electron-helper/sprite/menu.js',"    if (leaf.action === 'open-site') {", `    if (this.assetRoot === 'miku') {
       if (leaf.action === 'miku-codex-quota') return this.showMikuCodexQuota();
       if (leaf.action === 'miku-whisper') return this.sayMikuWhisper();
@@ -310,15 +420,19 @@ patch('lib/app.js','const r = await publishWhisper(who.petId, url.searchParams.g
   `const delivery = url.searchParams.get("delivery");
       const mikuDelivery = who.petId === "miku" && (delivery === "miku" || delivery === "miku-auto");
       const r = await publishWhisper(who.petId, mikuDelivery ? void 0 : url.searchParams.get("image") ?? void 0,
-        want === null ? void 0 : voiceTargetOfSurface(want), mikuDelivery ? delivery : "manual");`);
+        want === null ? void 0 : voiceTargetOfSurface(want), mikuDelivery ? delivery : "manual",
+        mikuDelivery && url.searchParams.get("appearance") === "symphony");`);
 patch('lib/app.js','const chatMemory = createChatMemory({', 'const chatMemory = createChatMemory({\n        standaloneAiPolicy,');
 patch('lib/app.js','const publishWhisper = async (petId, image, voiceTo, kind = "manual") => {',
-  `const publishWhisper = async (petId, image, voiceTo, kind = "manual") => {
+  `const publishWhisper = async (petId, image, voiceTo, kind = "manual", symphony = false) => {
     if (kind === "miku" || kind === "miku-auto") {
       const ai = deps.standaloneAiPolicy();
       if (!ai?.isReady() || (kind === "miku-auto" && !ai.canWhisper())) return {ok:false, reason:"provider-missing"};
       return generateWhisper(ctx, {
-        system: "你是《未来有你2021》Q版初音未来桌宠，撑纸伞，戴白花帽。用自然温柔的简体中文随口说一句，话题可选天气、音乐、休息、花和小零食。只写一句 10 至 35 字的台词，不加引号、标题、舞台指示或对用户状态的臆测。",
+        system: (symphony
+          ? "你是《初音未来交响乐2020》Q版初音未来桌宠，穿白金裙，戴金色发夹。话题可选乐谱、八音盒、排练和休息。"
+          : "你是《未来有你2021》Q版初音未来桌宠，撑纸伞，戴白花帽。话题可选天气、音乐、休息、花和小零食。")
+          + "用自然温柔的简体中文随口说一句。只写一句 10 至 35 字的台词，不加引号、标题、舞台指示或对用户状态的臆测。",
         timeoutMs: 6500,
       });
     }`);
@@ -371,6 +485,7 @@ buildActionCatalog(root, join(dest, 'runtime/electron-helper'), activeClips, [
     ...menuOnlyActions, ...animations.categories.find(({id}) => id === '动作查看').actions, ...animations.drag] },
   { label: '睡眠', names: animations.sleep.flatMap(({start, loop, end}) => [...start, ...loop, ...end]) },
 ]);
+buildActionCatalog(root, join(dest, 'runtime/electron-helper'), symphonyClips, symphonyGroups, 'miku-symphony-catalog.json');
 const size=+(640*(360*.78*Number(setting('SizePercent','70'))/100)/300).toFixed(2);
 const pet={id:'miku',name:'Miku · 未来有你2021',size,balanceEnabled:false,whisperEnabled:false,workStatusEnabled:false,fixedEnabled:setting('WanderEnabled','false')!=='true',display:'desktop',position:{corner:'top-left',marginX:+(Number(setting('Left','1300'))+300*.78*Number(setting('SizePercent','70'))/200-size/2).toFixed(2),marginY:+(Number(setting('Top','550'))+65*.78*Number(setting('SizePercent','70'))/100-size*60/640).toFixed(2)}};
 const conf={pets:[pet],animations,animationWeights:{idle:88,turn:3,move:3},font:{family:'system',size:18,followPet:true},physics:{gravity:1400,restitution:.55,groundFriction:3,ceilingBounce:true,throwPower:.65,petCollision:false,hapticEnabled:false,tiltGravity:false,shakeThrow:false},confineToScreen:true,sleepStartTexts:['稍微休息一下，待会儿见 ♪'],sleepEndTexts:['醒来啦，继续陪你 ♪'],sleepRefuseTexts:['让我再睡一会儿嘛…']};
@@ -379,8 +494,12 @@ mkdirSync(join(data,'dsh-pet/pet'),{recursive:true});
 const main={pets:[{...pet,id:'main',name:'默认角色（隐藏）',display:'none'}],animations,animationWeights:conf.animationWeights,clickSoundEnabled:false,notificationsEnabled:false,voiceEnabled:false,voiceWhisperEnabled:false,voiceTodoEnabled:false,whisperImageEnabled:false,chatImageEnabled:false,chatAnimationEnabled:false,font:conf.font,physics:conf.physics,confineToScreen:true};
 if(!existsSync(join(data,'dsh-pet/main-config.jsonc')))writeFileSync(join(data,'dsh-pet/main-config.jsonc'),JSON.stringify(main,null,2));
 if(!existsSync(join(data,'dsh-pet/pet/miku-config.json')))cpSync(join(pack,'miku-config.json'),join(data,'dsh-pet/pet/miku-config.json'));
-mkdirSync(join(data,'dsh-pet/pet/miku-animation'),{recursive:true});
-for(const clip of activeClips)cpSync(clip.source,join(data,'dsh-pet/pet/miku-animation',clip.target+'.webm'));
+const installedAnimations=join(data,'dsh-pet/pet/miku-animation');
+mkdirSync(installedAnimations,{recursive:true});
+for(const clip of [...activeClips, ...symphonyClips])cpSync(clip.source,join(installedAnimations,clip.target+'.webm'));
+// Older builds shipped the front pose as an additional idle in this generated directory.
+const retiredFrontIdle=join(installedAnimations,'正面站姿待机.webm');
+if(existsSync(retiredFrontIdle))unlinkSync(retiredFrontIdle);
 writeFileSync(join(dest,'bootstrap.cjs'),`const {app}=require('electron');\nconst path=require('node:path');\nprocess.env.DSH_HOME=path.resolve(__dirname,'../../../data-dsh');\nrequire('node:fs').mkdirSync(path.join(process.env.DSH_HOME,'chromium'),{recursive:true});\napp.setName('Miku Video Pet');\napp.setPath('userData',path.join(process.env.DSH_HOME,'chromium'));\nif(process.argv.includes('--miku-smoke')){process.env.DSH_PET_SMOKE='1';process.env.DSH_PET_SMOKE_OUT=path.join(process.env.DSH_HOME,'smoke.png');}\nimport('./lib/app.js');\n`);
 const commit=execFileSync('git',['rev-parse','HEAD'],{cwd:upstream,encoding:'utf8'}).trim();
 writeFileSync(join(root,'integrations/dsh/upstream.json'),JSON.stringify({repository:'https://github.com/PC2005-cloud/dsh-pet',commit,adapter:'tools/dsh/build-trial.mjs',assetOrigin:'Reviewed Miku videos; no upstream character videos included.'},null,2)+'\n');

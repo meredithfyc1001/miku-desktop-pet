@@ -6,14 +6,19 @@ const { loadPreferences, savePreferences } = require('./miku-preferences.cjs');
 
 function registerActions({ ipcMain, petWindows }) {
   const home = process.env.DSH_HOME;
-  const catalog = require('./miku-action-catalog.json');
-  const names = new Set(catalog.map(action => action.name));
+  const catalogs = {
+    classic: require('./miku-action-catalog.json'),
+    symphony: require('./miku-symphony-catalog.json'),
+  };
+  const currentAppearance = () => loadPreferences(home).appearance ?? 'classic';
+  const currentCatalog = () => catalogs[currentAppearance()];
+  const hasAction = name => currentCatalog().some(action => action.name === name);
   let window;
   let requestId = 0;
   const pending = new Map();
   const pets = () => [...petWindows.state.windows.values()].filter(win => !win.isDestroyed());
   const owns = (event, win) => win?.webContents === event.sender && event.senderFrame === event.sender.mainFrame;
-  const favorites = () => [...new Set(loadPreferences(home).favorites ?? [])].filter(name => names.has(name));
+  const favorites = () => [...new Set(loadPreferences(home).favorites ?? [])];
 
   function open() {
     if (window && !window.isDestroyed()) {
@@ -39,24 +44,34 @@ function registerActions({ ipcMain, petWindows }) {
   }
 
   ipcMain.on('miku:actions:open', event => { if (pets().some(pet => owns(event, pet))) open(); });
+  ipcMain.handle('miku:appearance', (event, appearance) => {
+    if (!pets().some(pet => owns(event, pet)) || typeof appearance !== 'string' ||
+        !Object.hasOwn(catalogs, appearance)) return false;
+    if (currentAppearance() === appearance) return true;
+    savePreferences(home, { appearance });
+    if (window && !window.isDestroyed()) window.close();
+    for (const pet of pets()) pet.webContents.send('miku:preferences:changed', ['appearance']);
+    return true;
+  });
   ipcMain.handle('miku:actions:list', event => owns(event, window) ? {
-    catalog: catalog.map(action => ({
+    catalog: currentCatalog().map(action => ({
       ...action,
       video: pathToFileURL(join(home, 'dsh-pet/pet/miku-animation', action.name + '.webm')).href,
     })),
-    favorites: favorites(),
+    appearance: currentAppearance(),
+    favorites: favorites().filter(hasAction),
   } : null);
   ipcMain.handle('miku:actions:favorite', (event, name, enabled) => {
-    if (!owns(event, window) || !names.has(name) || typeof enabled !== 'boolean') return null;
+    if (!owns(event, window) || !hasAction(name) || typeof enabled !== 'boolean') return null;
     const next = new Set(favorites());
     if (enabled) next.add(name);
     else next.delete(name);
     const { favorites: saved } = savePreferences(home, { favorites: [...next] });
     for (const pet of pets()) pet.webContents.send('miku:favorites:changed', saved);
-    return saved;
+    return saved.filter(hasAction);
   });
   ipcMain.handle('miku:actions:play', (event, name) => {
-    if (!owns(event, window) || !names.has(name)) return 'unavailable';
+    if (!owns(event, window) || !hasAction(name)) return 'unavailable';
     const [pet] = pets();
     if (!pet) return 'hidden';
     const id = ++requestId;

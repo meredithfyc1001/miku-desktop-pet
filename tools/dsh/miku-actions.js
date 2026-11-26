@@ -117,7 +117,8 @@ void (async () => {
     const data = await window.mikuActions.list();
     catalog = data.catalog;
     favorites = new Set(data.favorites);
-    find('total').textContent = 'Miku · ' + catalog.length + ' 个动作';
+    const appearance = data.appearance === 'symphony' ? '交响乐 2020' : '未来有你 2021';
+    find('total').textContent = appearance + ' · ' + catalog.length + ' 个动作';
     for (const name of new Set(catalog.map(action => action.category))) category.add(new Option(name, name));
     render();
     if (catalog.length) selectAction(catalog[0], false);
